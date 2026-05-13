@@ -423,7 +423,7 @@ set variable included_columns = (
 	)
 
 	local filtered_select = string.format(
-		"select %scolumns(c -> list_contains(getvariable('included_columns'), c)) from %s limit %d offset %d;",
+		"select %scolumns(lambda c: list_contains(getvariable('included_columns'), c)) from %s limit %d offset %d;",
 		row_id_prefix,
 		target,
 		limit,
