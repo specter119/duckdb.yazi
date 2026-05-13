@@ -90,15 +90,24 @@ The lambda syntax changed.  Always use the new form:
 
 ### Yazi >= 26.x
 
-In `yazi.toml` previewer/preloader rules, the field is **`url`**, not `name`:
+In `yazi.toml` previewer/preloader rules, use **`mime`** for file types with a
+stable MIME type, and **`url`** (glob on filename) for the rest:
 
 ```toml
--- CORRECT (yazi 26.x)
-{ url = "*.csv", run = "duckdb" }
-
--- WRONG (silent failure — files render as raw text)
-{ name = "*.csv", run = "duckdb" }
+prepend_previewers = [
+  { mime = "text/csv",                                                           run = "duckdb" },
+  { mime = "text/tab-separated-values",                                          run = "duckdb" },
+  { mime = "application/json",                                                   run = "duckdb" },
+  { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb" },
+  { url  = "*.parquet", run = "duckdb" },  -- no standard MIME type
+  { url  = "*.txt",     run = "duckdb" },  -- text/plain is too broad
+  { url  = "*.db",      run = "duckdb" },  -- no standard MIME type
+  { url  = "*.duckdb",  run = "duckdb" },  -- no standard MIME type
+]
 ```
+
+The old `name` key (pre-26.x) is silently ignored — files fall through to raw
+text rendering with no error shown to the user.
 
 ### Yazi plugin manager
 

@@ -148,25 +148,25 @@ Then navigate to your [yazi.toml](https://yazi-rs.github.io/docs/configuration/y
 and add:
 
 ```toml
-[plugin]  
-prepend_previewers = [  
-  { url = "*.csv", run = "duckdb" },  
-  { url = "*.tsv", run = "duckdb" },  
-  { url = "*.json", run = "duckdb" },  
-  { url = "*.parquet", run = "duckdb" },  
-  { url = "*.txt", run = "duckdb" },  
-  { url = "*.xlsx", run = "duckdb" },  
-  { url = "*.db", run = "duckdb" },
-  { url = "*.duckdb", run = "duckdb" }
+[plugin]
+prepend_previewers = [
+  { mime = "text/csv",                                                           run = "duckdb" },
+  { mime = "text/tab-separated-values",                                          run = "duckdb" },
+  { mime = "application/json",                                                   run = "duckdb" },
+  { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb" },
+  { url  = "*.parquet",                                                          run = "duckdb" },
+  { url  = "*.txt",                                                              run = "duckdb" },
+  { url  = "*.db",                                                               run = "duckdb" },
+  { url  = "*.duckdb",                                                           run = "duckdb" },
 ]
 
-prepend_preloaders = [  
-  { url = "*.csv", run = "duckdb", multi = false },  
-  { url = "*.tsv", run = "duckdb", multi = false },  
-  { url = "*.json", run = "duckdb", multi = false },  
-  { url = "*.parquet", run = "duckdb", multi = false },
-  { url = "*.txt", run = "duckdb", multi = false },  
-  { url = "*.xlsx", run = "duckdb", multi = false }
+prepend_preloaders = [
+  { mime = "text/csv",                                                           run = "duckdb", multi = false },
+  { mime = "text/tab-separated-values",                                          run = "duckdb", multi = false },
+  { mime = "application/json",                                                   run = "duckdb", multi = false },
+  { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb", multi = false },
+  { url  = "*.parquet",                                                          run = "duckdb", multi = false },
+  { url  = "*.txt",                                                              run = "duckdb", multi = false },
 ]
 ```
 
