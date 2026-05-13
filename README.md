@@ -12,7 +12,7 @@
 
 This plugin previews your data files in yazi using DuckDB, with two available view modes:
 
-- Preview csv, tsv, json, or parquet files in the following modes
+- Preview csv, tsv, json, jsonl, or parquet files in the following modes
   - Standard mode (default): Displays the file as a table
   - Summarized mode: Uses DuckDB's summarize function, enhanced with custom formatting for readability
 - Preview duckdb databases
@@ -26,10 +26,11 @@ Supported file types:
 - .csv  
 - .tsv
 - .json  
+- .jsonl / .ndjson
 - .parquet  
 - .xlsx
 - .duckdb
-- .db - if file is a duckdb database
+- .db - if file is a duckdb or sqlite database
 
 <br><br>
 
@@ -152,6 +153,7 @@ prepend_previewers = [
   { mime = "text/csv",                                                           run = "duckdb" },
   { mime = "text/tab-separated-values",                                          run = "duckdb" },
   { mime = "application/json",                                                   run = "duckdb" },
+  { mime = "application/x-ndjson",                                               run = "duckdb" },
   { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb" },
   { url  = "*.parquet",                                                          run = "duckdb" },
   { url  = "*.db",                                                               run = "duckdb" },
@@ -162,6 +164,7 @@ prepend_preloaders = [
   { mime = "text/csv",                                                           run = "duckdb", multi = false },
   { mime = "text/tab-separated-values",                                          run = "duckdb", multi = false },
   { mime = "application/json",                                                   run = "duckdb", multi = false },
+  { mime = "application/x-ndjson",                                               run = "duckdb", multi = false },
   { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb", multi = false },
   { url  = "*.parquet",                                                          run = "duckdb", multi = false },
 ]

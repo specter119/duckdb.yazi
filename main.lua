@@ -12,6 +12,8 @@ local update_state = ya.sync(function(state, action, category, key, value)
 		return state[category][key]
 	elseif action == "check" then
 		return state[category][key] ~= nil
+	elseif action == "clear" then
+		state[category] = {}
 	else
 		ya.err("Unknown action: " .. tostring(action))
 	end
@@ -49,7 +51,7 @@ local function is_on_list(category, cache_str)
 end
 
 local function clear_list(category)
-	set_opts(category, {}) -- replaces the whole list with an empty table
+	update_state("clear", category)
 end
 
 local function add_queries_to_table(target_table, queries)
@@ -80,6 +82,8 @@ local extension_map = {
 	tsv = "csv",
 	txt = "text",
 	json = "json",
+	jsonl = "json",
+	ndjson = "json",
 	parquet = "parquet",
 	xlsx = "excel",
 	duckdb = "duckdb",
@@ -316,8 +320,9 @@ local function run_query(job, query, target, file_type)
 	end
 
 	local output, err = child:wait_with_output()
-	if err or not output.status.success then
-		ya.err("DuckDB error: " .. (err or output.stderr or "[unknown error]"))
+	if err or not output or not output.status or not output.status.success then
+		local stderr = output and output.stderr
+		ya.err("DuckDB error: " .. tostring(err or stderr or "[unknown error]"))
 		return nil
 	end
 
@@ -779,9 +784,14 @@ function M:peek(job)
 		elseif is_on_list("bad_cache", args.cache_str) then
 			return require("code"):peek(job)
 		end
+		return
 	end
 
-	if args.target == args.file_url and args.mode == "summarized" and not args.use_cache then
+	if args.target == args.file_url
+		and args.mode == "summarized"
+		and not args.use_cache
+		and is_on_list("preloading", args.cache_str)
+	then
 		render_output(output, job)
 		while not is_on_list("completed", args.cache_str) do
 			ya.sleep(0.2)
