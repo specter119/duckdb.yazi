@@ -25,6 +25,17 @@ local function get_opts(key)
 	return update_state("get", "opts", key)
 end
 
+-- Module-level defaults; setup() overrides these with user-provided values.
+set_opts("mode", "summarized")
+set_opts("mode_changed", false)
+set_opts("re_peek", false)
+set_opts("os", ya.target_os())
+set_opts("column_width", 21)
+set_opts("row_id", false)
+set_opts("scrolled_columns", 0)
+set_opts("column_fit_factor", 10)
+set_opts("limit", 500)
+
 local function add_to_list(category, cache_str)
 	update_state("set", category, cache_str, true)
 end
@@ -182,7 +193,7 @@ local function generate_preload_query(job, mode, file_type, limit)
 end
 
 local function generate_summary_cte(target)
-	local column_width = get_opts("column_width") or 21
+	local column_width = get_opts("column_width")
 	return string.format(
 		[[
 SELECT
@@ -593,7 +604,7 @@ end
 local function prepare_peek_context(job)
 	local file_url = job.file.url
 	local re_peek = get_opts("re_peek")
-	local mode = get_opts("mode") or "summarized"
+	local mode = get_opts("mode")
 	local mode_changed = get_opts("mode_changed")
 
 	-- Handle scroll reset and peek triggering
