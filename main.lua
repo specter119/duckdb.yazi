@@ -32,20 +32,31 @@ local function set_opts(key, value)
 	update_state("set", "opts", key, value)
 end
 
-local function get_opts(key)
-	return update_state("get", "opts", key)
-end
+-- Defaults used when setup() has not been called or a key has not been set.
+local opts_defaults = {
+	mode = "summarized",
+	mode_changed = false,
+	re_peek = false,
+	column_width = 21,
+	row_id = false,
+	scrolled_columns = 0,
+	column_fit_factor = 10,
+	limit = 500,
+}
 
--- Module-level defaults; setup() overrides these with user-provided values.
-set_opts("mode", "summarized")
-set_opts("mode_changed", false)
-set_opts("re_peek", false)
-set_opts("os", ya.target_os())
-set_opts("column_width", 21)
-set_opts("row_id", false)
-set_opts("scrolled_columns", 0)
-set_opts("column_fit_factor", 10)
-set_opts("limit", 500)
+local function get_opts(key)
+	local v = update_state("get", "opts", key)
+	if v == nil then
+		-- Fall back to defaults rather than calling set_opts at module load
+		-- time (ya.sync() cannot be called during module initialization in
+		-- Yazi 26.5.6 / Lua 5.5).
+		if key == "os" then
+			return ya.target_os()
+		end
+		return opts_defaults[key]
+	end
+	return v
+end
 
 local function add_to_list(category, cache_str)
 	update_state("set", category, cache_str, true)
