@@ -3,14 +3,23 @@
 local M = {}
 
 local update_state = ya.sync(function(state, action, category, key, value)
+	if not category then
+		ya.err("[duckdb] update_state: nil category (action=" .. tostring(action) .. ")")
+		return nil
+	end
 	-- Ensure the subtable for the category exists.
 	state[category] = state[category] or {}
 
 	if action == "set" then
+		if key == nil then
+			return -- nil key is a no-op; prevents "table index is nil" in Lua 5.5
+		end
 		state[category][key] = value
 	elseif action == "get" then
+		if key == nil then return nil end
 		return state[category][key]
 	elseif action == "check" then
+		if key == nil then return false end
 		return state[category][key] ~= nil
 	elseif action == "clear" then
 		state[category] = {}
@@ -507,7 +516,7 @@ local function generate_peek_query(target, job, limit, offset, file_type, cache_
 		return generate_standard_query(source, job, limit, offset)
 	end
 	local placeholder = "⏱"
-	if is_on_list("bad_cache", cache_str) then
+	if cache_str and is_on_list("bad_cache", cache_str) then
 		placeholder = "∅"
 	end
 
@@ -717,7 +726,7 @@ end
 
 local function is_plain_text(job, file_type)
 	local file_hash, _ = get_cache_path(job, "standard", "text")
-	if is_on_list("is_plain_text", file_hash) then
+	if file_hash and is_on_list("is_plain_text", file_hash) then
 		return true
 	end
 
@@ -734,7 +743,7 @@ local function is_plain_text(job, file_type)
 	local output = run_query(job, query, nil, file_type)
 	local result = (output and output.stdout == "1\r\n")
 
-	if result then
+	if result and file_hash then
 		add_to_list("is_plain_text", file_hash)
 	end
 
@@ -781,7 +790,7 @@ function M:peek(job)
 			add_to_list("bad_cache", args.cache_str)
 			remove_file(args.cache_url)
 			return require("duckdb"):peek(job)
-		elseif is_on_list("bad_cache", args.cache_str) then
+		elseif args.cache_str and is_on_list("bad_cache", args.cache_str) then
 			return require("code"):peek(job)
 		end
 		return
@@ -790,6 +799,7 @@ function M:peek(job)
 	if args.target == args.file_url
 		and args.mode == "summarized"
 		and not args.use_cache
+		and args.cache_str
 		and is_on_list("preloading", args.cache_str)
 	then
 		render_output(output, job)
