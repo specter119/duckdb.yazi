@@ -182,7 +182,7 @@ local function generate_preload_query(job, mode, file_type, limit)
 end
 
 local function generate_summary_cte(target)
-	local column_width = get_opts("column_width")
+	local column_width = get_opts("column_width") or 21
 	return string.format(
 		[[
 SELECT
@@ -593,7 +593,7 @@ end
 local function prepare_peek_context(job)
 	local file_url = job.file.url
 	local re_peek = get_opts("re_peek")
-	local mode = get_opts("mode")
+	local mode = get_opts("mode") or "summarized"
 	local mode_changed = get_opts("mode_changed")
 
 	-- Handle scroll reset and peek triggering
@@ -672,8 +672,8 @@ local function create_cache(job, mode, file_type, limit)
 	local base_query = generate_preload_query(job, mode, file_type, limit)
 	local query = string.format("COPY (%s) TO '%s' (FORMAT 'parquet');", base_query, target)
 	local output = run_query(job, query, nil, file_type)
-	ya.dbg("stdout: " .. tostring(output.stdout))
-	ya.dbg("stderr: " .. tostring(output.stderr))
+	ya.dbg("stdout: " .. tostring(output and output.stdout))
+	ya.dbg("stderr: " .. tostring(output and output.stderr))
 
 	if not output or (output.stderr and output.stderr ~= "") then
 		ya.err(
@@ -758,8 +758,8 @@ function M:peek(job)
 	local query = generate_peek_query(args.target, job, args.limit, args.offset, args.file_type, args.cache_str)
 	ya.dbg("query: " .. tostring(query))
 	local output = run_query(job, query, args.target, args.file_type)
-	ya.dbg("stdout: " .. tostring(output.stdout))
-	ya.dbg("stderr: " .. tostring(output.stderr))
+	ya.dbg("stdout: " .. tostring(output and output.stdout))
+	ya.dbg("stderr: " .. tostring(output and output.stderr))
 	if not output_is_valid(output, args.mode, job) then
 		if args.target == args.cache_url and args.scrolled_collumns == 0 then
 			add_to_list("bad_cache", args.cache_str)
