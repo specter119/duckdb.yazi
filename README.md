@@ -25,7 +25,6 @@ Supported file types:
 
 - .csv  
 - .tsv
-- .txt - if tabular data
 - .json  
 - .parquet  
 - .xlsx
@@ -155,7 +154,6 @@ prepend_previewers = [
   { mime = "application/json",                                                   run = "duckdb" },
   { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb" },
   { url  = "*.parquet",                                                          run = "duckdb" },
-  { url  = "*.txt",                                                              run = "duckdb" },
   { url  = "*.db",                                                               run = "duckdb" },
   { url  = "*.duckdb",                                                           run = "duckdb" },
 ]
@@ -166,13 +164,8 @@ prepend_preloaders = [
   { mime = "application/json",                                                   run = "duckdb", multi = false },
   { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb", multi = false },
   { url  = "*.parquet",                                                          run = "duckdb", multi = false },
-  { url  = "*.txt",                                                              run = "duckdb", multi = false },
 ]
 ```
-
->note on .txt: I have tried to exclude files that contain only raw text (if duckdb reads only one column). However, if you don't ever work with .txt files which contain tabular data (basically misnamed csv or tsv files) then you can just not include the .txt lines in your setup.
-
-<br>
 
 >note on .xlsx: This can be temperamental, especially around inferring types. This is due to the way that duckdb handles excel files. This feature currently uses st_read from the spatial extension since it gives the most consistent type results. Hopefully they will soon implement some of the smart type detection from the csv reader in their excel extension and then we can use that instead.
 

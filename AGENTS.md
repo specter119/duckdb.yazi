@@ -26,10 +26,10 @@ external Lua dependencies.
 
 `main.lua` exposes a single module `M` with two public entry points:
 
-| Entry point | Trigger | Purpose |
-|---|---|---|
-| `M:setup(opts)` | `init.lua` at startup | Store user options into shared sync state |
-| `M:entry(job)` | Yazi key/preview event | Route to column-scroll, open-in-duckdb, or preview peek |
+| Entry point     | Trigger                | Purpose                                                 |
+| --------------- | ---------------------- | ------------------------------------------------------- |
+| `M:setup(opts)` | `init.lua` at startup  | Store user options into shared sync state               |
+| `M:entry(job)`  | Yazi key/preview event | Route to column-scroll, open-in-duckdb, or preview peek |
 
 ### Shared sync state
 
@@ -60,7 +60,7 @@ render_output(output, job)
 ### Caching (`M:preload`)
 
 Preload runs in background and writes two Parquet cache files per file
-(standard + summarized).  Cache paths are derived from `ya.file_cache(job)`
+(standard + summarized). Cache paths are derived from `ya.file_cache(job)`
 with a synthetic `skip = 1_000_000 + cache_version` sentinel.
 
 `cache_version = 3` (line ~258) — bump this when the cached schema changes
@@ -68,16 +68,16 @@ to force cache invalidation for all users.
 
 ### Column scrolling
 
-`M:entry` receives `+1` / `-1` args from keymap bindings.  It increments
+`M:entry` receives `+1` / `-1` args from keymap bindings. It increments
 `scrolled_columns` in sync state and calls `ya.emit("seek", {...})` to
-trigger a re-peek.  The scroll position is reset to 0 whenever `job.skip`
+trigger a re-peek. The scroll position is reset to 0 whenever `job.skip`
 is 0 (new file selected) or mode is toggled.
 
 ## Version compatibility notes
 
 ### DuckDB >= 1.5
 
-The lambda syntax changed.  Always use the new form:
+The lambda syntax changed. Always use the new form:
 
 ```lua
 -- CORRECT (DuckDB 1.5+)
@@ -100,11 +100,13 @@ prepend_previewers = [
   { mime = "application/json",                                                   run = "duckdb" },
   { mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", run = "duckdb" },
   { url  = "*.parquet", run = "duckdb" },  -- no standard MIME type
-  { url  = "*.txt",     run = "duckdb" },  -- text/plain is too broad
   { url  = "*.db",      run = "duckdb" },  -- no standard MIME type
   { url  = "*.duckdb",  run = "duckdb" },  -- no standard MIME type
 ]
 ```
+
+`.txt` is intentionally excluded — `text/plain` is too broad and tabular `.txt`
+files are better named as `.csv` / `.tsv`.
 
 The old `name` key (pre-26.x) is silently ignored — files fall through to raw
 text rendering with no error shown to the user.
@@ -125,14 +127,14 @@ ya pack -a wylie102/duckdb
 
 1. **Edit only `main.lua`** for behaviour changes.
 2. **Edit only `README.md`** for documentation/config changes.
-3. Validate the lambda syntax in any new DuckDB query:  avoid `->` lambdas.
+3. Validate the lambda syntax in any new DuckDB query: avoid `->` lambdas.
 4. Do not add files that Yazi's plugin loader doesn't expect
    (no `init.lua` in the repo — users create their own in their config dir).
 5. After changing cached output shape, bump `cache_version` in `get_cache_path`.
 
 ## Testing (manual)
 
-There is no automated test suite.  Manual smoke-test checklist:
+There is no automated test suite. Manual smoke-test checklist:
 
 - [ ] CSV, TSV, JSON, Parquet, XLSX, `.db`, `.duckdb` files all preview
 - [ ] Row scrolling (`J`/`K`) and column scrolling (`H`/`L`) work
@@ -144,8 +146,6 @@ There is no automated test suite.  Manual smoke-test checklist:
 
 ```
 <type>: <description>
-
-Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
 ```
 
 Types: `feat`, `fix`, `refactor`, `docs`, `chore`
