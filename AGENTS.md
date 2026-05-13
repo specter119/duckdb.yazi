@@ -37,6 +37,8 @@ providing a standalone CLI tool.
 - `README.md` is user-facing documentation; keep it in sync with supported
   file types and configuration options.
 - `test/run_tests.sh` is the integration test suite — run it after changes.
+- `docs/architecture.md` documents the internal design (lifecycle, query
+  routing, cache state machine) — update it when making structural changes.
 - Do not add new files to the repo root.
 
 ### Testing
